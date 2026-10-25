@@ -65,5 +65,5 @@ export const emailService = {
   sendActivationEmail,
   sendResetPassword,
   send,
-  sendNotificationOnOldEmail
+  sendNotificationOnOldEmail,
 };

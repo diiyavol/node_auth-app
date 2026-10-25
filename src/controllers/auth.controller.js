@@ -53,6 +53,7 @@ const activate = async (req, res) => {
   const user = await User.findOne({
     where: { activationToken },
   });
+
   // || user.activationToken !== activationToken
   if (!user) {
     throw ApiError.notFound('No such user');
@@ -61,7 +62,10 @@ const activate = async (req, res) => {
   user.activationToken = null;
   await user.save();
 
-  res.send(user);
+  res.send({
+    redirectTo: '/profile',
+    user: userService.normalize(user),
+  });
 };
 
 async function generateTokens(res, user) {
@@ -174,6 +178,7 @@ const resetPassword = async (req, res) => {
   }
 
   const hashedPass = await bcrypt.hash(password, 10);
+
   user.resetPasswordToken = null;
   user.password = hashedPass;
   await user.save();

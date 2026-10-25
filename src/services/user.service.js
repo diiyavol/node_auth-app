@@ -11,8 +11,8 @@ function getAllActivated() {
   });
 }
 
-function normalize({ id, email }) {
-  return { id, email };
+function normalize({ id, name, email }) {
+  return { id, name, email };
 }
 
 function findByEmail(email) {
@@ -29,7 +29,12 @@ async function register(name, email, password) {
     });
   }
 
-  await User.create({ name, email, password, activationToken });
+  await User.create({
+    name,
+    email,
+    password,
+    activationToken,
+  });
 
   await emailService.sendActivationEmail(email, activationToken);
 }
