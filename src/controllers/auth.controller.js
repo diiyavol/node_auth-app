@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 
 const EMAIL_PATTERN = /^[\w.+-]+@([\w-]+\.){1,3}[\w-]{2,}$/;
 
-export function validateEmail(value) {
+function validateEmail(value) {
   if (!value) {
     return 'Email is required';
   }
@@ -19,7 +19,7 @@ export function validateEmail(value) {
   }
 }
 
-export function validatePassword(value) {
+function validatePassword(value) {
   if (!value) {
     return 'Password is required';
   }
@@ -186,6 +186,20 @@ const resetPassword = async (req, res) => {
   res.send({ message: 'OK' });
 };
 
+const checkResetToken = async (req, res) => {
+  const { token } = req.params;
+
+  const user = await User.findOne({
+    where: { resetPasswordToken: token },
+  });
+
+  if (!user) {
+    throw ApiError.badRequest('User no token');
+  }
+
+  res.send({ message: 'Token is valid' });
+};
+
 module.exports = {
   register,
   activate,
@@ -194,4 +208,7 @@ module.exports = {
   logout,
   forgotPassword,
   resetPassword,
+  checkResetToken,
+  validateEmail,
+  validatePassword,
 };
