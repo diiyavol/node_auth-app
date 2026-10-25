@@ -1,9 +1,9 @@
-import { ApiError } from '../exception/api.error.js';
-import { User } from '../models/user.js';
-import { userService } from '../services/user.service.js';
-import bcrypt from 'bcrypt';
-import { validatePassword } from './auth.controller.js';
-import { emailService } from '../services/email.service.js';
+const { ApiError } = require('../exception/api.error.js');
+const { User } = require('../models/user.js');
+const { userService } = require('../services/user.service.js');
+const bcrypt = require('bcrypt');
+const { validatePassword } = require('./auth.controller.js');
+const { emailService } = require('../services/email.service.js');
 
 const getInfoForUser = async (req, res) => {
   const { email } = req.user;
@@ -94,7 +94,7 @@ const changeEmail = async (req, res) => {
   res.send({ message: 'OK' });
 };
 
-export const profileController = {
+module.exports = {
   getInfoForUser,
   changeName,
   changePassword,

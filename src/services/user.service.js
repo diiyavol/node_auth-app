@@ -1,7 +1,7 @@
-import { ApiError } from '../exception/api.error.js';
-import { User } from '../models/user.js';
-import { emailService } from '../services/email.service.js';
-import { v4 as uuidv4 } from 'uuid';
+const { ApiError } = require('../exception/api.error.js');
+const { User } = require('../models/user.js');
+const { emailService } = require('../services/email.service.js');
+const { v4: uuidv4 } = require('uuid');
 
 function getAllActivated() {
   return User.findAll({
@@ -38,9 +38,14 @@ async function register(name, email, password) {
 
   await emailService.sendActivationEmail(email, activationToken);
 }
-export const userService = {
+
+const userService = {
   getAllActivated,
   normalize,
   findByEmail,
   register,
+};
+
+module.exports = {
+  userService,
 };

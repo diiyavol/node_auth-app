@@ -1,4 +1,4 @@
-import { userService } from '../services/user.service.js';
+const { userService } = require('../services/user.service.js');
 
 const getAllActivated = async (req, res) => {
   const users = await userService.getAllActivated();
@@ -6,6 +6,6 @@ const getAllActivated = async (req, res) => {
   res.send(users.map(userService.normalize));
 };
 
-export const userController = {
+module.exports = {
   getAllActivated,
 };

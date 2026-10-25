@@ -1,11 +1,11 @@
-import { User } from '../models/user.js';
-import { userService } from '../services/user.service.js';
-import { jwtService } from '../services/jwt.service.js';
-import { ApiError } from '../exception/api.error.js';
-import bcrypt from 'bcrypt';
-import { tokenService } from '../services/token.service.js';
-import { emailService } from '../services/email.service.js';
-import { v4 as uuidv4 } from 'uuid';
+const { User } = require('../models/user.js');
+const { userService } = require('../services/user.service.js');
+const { jwtService } = require('../services/jwt.service.js');
+const { ApiError } = require('../exception/api.error.js');
+const { tokenService } = require('../services/token.service.js');
+const { emailService } = require('../services/email.service.js');
+const { v4: uuidv4 } = require('uuid');
+const bcrypt = require('bcrypt');
 
 const EMAIL_PATTERN = /^[\w.+-]+@([\w-]+\.){1,3}[\w-]{2,}$/;
 
@@ -186,7 +186,7 @@ const resetPassword = async (req, res) => {
   res.send({ message: 'OK' });
 };
 
-export const authController = {
+module.exports = {
   register,
   activate,
   login,

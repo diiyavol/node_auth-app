@@ -1,5 +1,6 @@
-import 'dotenv/config';
-import nodemailer from 'nodemailer';
+require('dotenv/config');
+
+const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -10,14 +11,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// const info = await transporter.sendMail({
-//   to: 'mohawow382@goldvester.com',
-//   subject: 'Hello',
-//   text: 'Hello world?',
-//   html: '<b>Hello world?</b>',
-// });
-
-export function send({ email, subject, html }) {
+function send({ email, subject, html }) {
   return transporter.sendMail({
     to: email,
     subject,
@@ -61,9 +55,12 @@ function sendNotificationOnOldEmail(email) {
     subject: 'Someone was change an email on acount, is it your?',
   });
 }
-export const emailService = {
+
+const emailService = {
   sendActivationEmail,
   sendResetPassword,
   send,
   sendNotificationOnOldEmail,
 };
+
+module.exports = { emailService };
