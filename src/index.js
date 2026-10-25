@@ -8,6 +8,8 @@ import { errorMiddleware } from './middlewares/errorMiddleware.js';
 import cookieParser from 'cookie-parser';
 import { client } from './utils/db.js';
 import './models/token.js';
+import { profileRouter } from './routes/profile.route.js';
+import { ApiError } from './exception/api.error.js';
 
 const PORT = process.env.PORT || 3005;
 
@@ -26,8 +28,14 @@ app.use(
 app.use(authRouter);
 app.use('/users', userRouter);
 
+app.use(profileRouter);
+
 app.get('/', (req, res) => {
   res.send('Hello');
+});
+
+app.use((req, res, next) => {
+  next(ApiError.notFound('Not found'));
 });
 
 app.use(errorMiddleware);

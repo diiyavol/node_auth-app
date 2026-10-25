@@ -2,6 +2,11 @@ import { DataTypes } from 'sequelize';
 import { client } from '../utils/db.js';
 
 export const User = client.define('user', {
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'User',
+  },
   email: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -12,6 +17,12 @@ export const User = client.define('user', {
     allowNull: false,
   },
   activationToken: {
+    type: DataTypes.STRING,
+  },
+  resetPasswordToken: {
+    type: DataTypes.STRING,
+  },
+  resetPasswordExpires: {
     type: DataTypes.STRING,
   },
 });

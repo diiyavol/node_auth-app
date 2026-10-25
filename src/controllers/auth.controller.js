@@ -4,10 +4,12 @@ import { jwtService } from '../services/jwt.service.js';
 import { ApiError } from '../exception/api.error.js';
 import bcrypt from 'bcrypt';
 import { tokenService } from '../services/token.service.js';
+import { emailService } from '../services/email.service.js';
+import { v4 as uuidv4 } from 'uuid';
 
 const EMAIL_PATTERN = /^[\w.+-]+@([\w-]+\.){1,3}[\w-]{2,}$/;
 
-function validateEmail(value) {
+export function validateEmail(value) {
   if (!value) {
     return 'Email is required';
   }
@@ -17,7 +19,7 @@ function validateEmail(value) {
   }
 }
 
-function validatePassword(value) {
+export function validatePassword(value) {
   if (!value) {
     return 'Password is required';
   }
@@ -28,7 +30,7 @@ function validatePassword(value) {
 }
 
 const register = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
 
   const errors = {
     email: validateEmail(email),
@@ -41,7 +43,7 @@ const register = async (req, res, next) => {
 
   const hashedPass = await bcrypt.hash(password, 10);
 
-  await userService.register(email, hashedPass);
+  await userService.register(name, email, hashedPass);
   res.send({ message: 'OK' });
 };
 
@@ -51,11 +53,9 @@ const activate = async (req, res) => {
   const user = await User.findOne({
     where: { activationToken },
   });
-
+  // || user.activationToken !== activationToken
   if (!user) {
-    res.sendStatus(404);
-
-    return;
+    throw ApiError.notFound('No such user');
   }
 
   user.activationToken = null;
@@ -89,13 +89,17 @@ const login = async (req, res) => {
   const user = await userService.findByEmail(email);
 
   if (!user) {
-    throw ApiError.badRequest('No such user');
+    throw ApiError.notFound('No such user');
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
     throw ApiError.badRequest('Wrong password');
+  }
+
+  if (user.activationToken) {
+    throw ApiError.badRequest('User is not active');
   }
 
   await generateTokens(res, user);
@@ -129,10 +133,60 @@ const logout = async (req, res) => {
   res.sendStatus(204);
 };
 
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  const forgotToken = uuidv4();
+
+  const user = await userService.findByEmail(email);
+
+  if (!user) {
+    throw ApiError.badRequest('No such user');
+  }
+
+  user.resetPasswordToken = forgotToken;
+  await user.save();
+  await emailService.sendResetPassword(email, forgotToken);
+  res.sendStatus(204);
+};
+
+const resetPassword = async (req, res) => {
+  const { password, confirmPassword } = req.body;
+  const { token } = req.params;
+
+  const user = await User.findOne({
+    where: { resetPasswordToken: token },
+  });
+
+  const errors = {
+    password: validatePassword(password),
+  };
+
+  if (errors.password) {
+    throw ApiError.badRequest('Bad request', errors);
+  }
+
+  if (!user) {
+    throw ApiError.badRequest('User no token');
+  }
+
+  if (password !== confirmPassword) {
+    throw ApiError.badRequest('Password not match');
+  }
+
+  const hashedPass = await bcrypt.hash(password, 10);
+  user.resetPasswordToken = null;
+  user.password = hashedPass;
+  await user.save();
+
+  res.send({ message: 'OK' });
+};
+
 export const authController = {
   register,
   activate,
   login,
   refresh,
   logout,
+  forgotPassword,
+  resetPassword,
 };

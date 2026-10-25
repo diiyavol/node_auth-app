@@ -36,10 +36,34 @@ function sendActivationEmail(email, token) {
   return send({
     email,
     html,
-    subject: 'ACtivate',
+    subject: 'Activate',
+  });
+}
+
+function sendResetPassword(email, token) {
+  const href = `${process.env.CLIENT_HOST}/reset-password/${token}`;
+
+  const html = `
+    <h1>Reset password for account</h1>
+    <a href="${href}">${href}</a>
+  `;
+
+  return send({
+    email,
+    html,
+    subject: 'Reset password',
+  });
+}
+
+function sendNotificationOnOldEmail(email) {
+  return send({
+    email,
+    subject: 'Someone was change an email on acount, is it your?',
   });
 }
 export const emailService = {
   sendActivationEmail,
+  sendResetPassword,
   send,
+  sendNotificationOnOldEmail
 };
